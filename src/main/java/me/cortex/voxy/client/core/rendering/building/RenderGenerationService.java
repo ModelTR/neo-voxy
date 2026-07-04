@@ -280,15 +280,22 @@ public class RenderGenerationService {
         if (!this.service.isLive()) {
             return;
         }
-        boolean[] isOurs = new boolean[1];
-        long stamp = this.taskMapLock.writeLock();
-        BuildTask task = this.taskMap.computeIfAbsent(pos, p->{
-                isOurs[0] = true;
-                return new BuildTask(p);
-            });
-        this.taskMapLock.unlockWrite(stamp);
 
-        if (isOurs[0]) {//If its not ours we dont care about it
+        BuildTask task;
+        boolean isOurs = false;
+        long stamp = this.taskMapLock.writeLock();
+        try {
+            task = this.taskMap.get(pos);
+            if (task == null) {
+                task = new BuildTask(pos);
+                this.taskMap.put(pos, task);
+                isOurs = true;
+            }
+        } finally {
+            this.taskMapLock.unlockWrite(stamp);
+        }
+
+        if (isOurs) {//If its not ours we dont care about it
             //Set priority and insert into queue and execute
             task.updatePriority();
             this.taskQueue.add(task);

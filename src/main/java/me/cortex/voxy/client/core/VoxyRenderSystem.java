@@ -58,6 +58,13 @@ import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 import static org.lwjgl.opengl.GL43C.GL_SHADER_STORAGE_BUFFER_BINDING;
 
 public class VoxyRenderSystem {
+    // Hot-reloadable render pressure tables. Index is VoxyConfig.renderPressure:
+    // 0 = maximum FPS / slowest LOD catch-up, 4 = fastest LOD catch-up / highest frame pressure.
+    private static final long[] MODEL_BAKE_BUDGET_LOW_FPS = {75_000L, 150_000L, 250_000L, 450_000L, 900_000L};
+    private static final long[] MODEL_BAKE_BUDGET_BUSY = {150_000L, 300_000L, 500_000L, 750_000L, 1_200_000L};
+    private static final long[] MODEL_BAKE_BUDGET_IDLE = {300_000L, 550_000L, 900_000L, 1_350_000L, 2_000_000L};
+    private static final int[] TOP_LEVEL_NODE_PROCESS_RATE = {4, 8, 12, 24, 40};
+
     private final WorldEngine worldIn;
 
 
@@ -165,7 +172,7 @@ public class VoxyRenderSystem {
                     maxSec = 7;
                 }
 
-                this.renderDistanceTracker = new RenderDistanceTracker(40,
+                this.renderDistanceTracker = new RenderDistanceTracker(this.getTopLevelNodeProcessRate(),
                         minSec,
                         maxSec,
                         this.nodeManager::addTopLevel,
@@ -279,7 +286,9 @@ public class VoxyRenderSystem {
             throw new IllegalStateException("Cannot use the default framebuffer as cannot source from it");
         }
 
-        //this.autoBalanceSubDivSize();
+        if (VoxyConfig.CONFIG.getRenderPressureLevel() <= 1) {
+            this.autoBalanceSubDivSize();
+        }
 
         this.pipeline.preSetup(viewport);
 
@@ -308,10 +317,14 @@ public class VoxyRenderSystem {
             //Tick upload stream (this is ok to do here as upload ticking is just memory management)
             UploadStream.INSTANCE.tick();
 
+            this.renderDistanceTracker.setProcessRate(this.getTopLevelNodeProcessRate());
             while (this.renderDistanceTracker.setCenterAndProcess(viewport.cameraX, viewport.cameraZ) && VoxyClient.isFrexActive());//While FF is active, run until everything is processed
             TimingStatistics.H.start();
-            //Done here as is allows less gl state resetup
-            do { this.modelService.tick(900_000); } while (VoxyClient.isFrexActive() && !this.modelService.areQueuesEmpty());
+            // Done here as it allows less GL state resetup. The budget is read from config every
+            // frame, so changing the LOD build pressure option is hot-reloadable and does not need
+            // renderer recreation.
+            long modelBakeBudget = this.getModelBakeBudgetNanos();
+            do { this.modelService.tick(modelBakeBudget); } while (VoxyClient.isFrexActive() && !this.modelService.areQueuesEmpty());
             TimingStatistics.H.stop();
         }
         GPUTiming.INSTANCE.marker();
@@ -378,6 +391,32 @@ public class VoxyRenderSystem {
          */
     }
 
+
+
+    private long getModelBakeBudgetNanos() {
+        int pressure = VoxyConfig.CONFIG.getRenderPressureLevel();
+        int fps = Minecraft.getInstance().getFps();
+        if (fps <= 0) {
+            fps = 60;
+        }
+
+        int renderTasks = this.renderGen.getTaskCount();
+
+        // When FPS is already low or the section generation queue is backing up, spend less
+        // render-thread time on model baking. This keeps movement smooth and lets LOD catch up
+        // when the CPU/GPU has headroom again.
+        if (fps < 40 || renderTasks > 1_000) {
+            return MODEL_BAKE_BUDGET_LOW_FPS[pressure];
+        }
+        if (fps < 55 || renderTasks > 400) {
+            return MODEL_BAKE_BUDGET_BUSY[pressure];
+        }
+        return MODEL_BAKE_BUDGET_IDLE[pressure];
+    }
+
+    private int getTopLevelNodeProcessRate() {
+        return TOP_LEVEL_NODE_PROCESS_RATE[VoxyConfig.CONFIG.getRenderPressureLevel()];
+    }
 
 
     private void autoBalanceSubDivSize() {
@@ -501,6 +540,7 @@ public class VoxyRenderSystem {
         {
             TimingStatistics.update();
             debug.add("Voxy frame runtime (millis): " + TimingStatistics.dynamic.pVal() + ", " + TimingStatistics.main.pVal()+ ", " + TimingStatistics.postDynamic.pVal()+ ", " + TimingStatistics.all.pVal());
+            debug.add("Voxy LOD build pressure: " + VoxyConfig.CONFIG.getRenderPressureLevel() + ", model bake budget ns: " + this.getModelBakeBudgetNanos() + ", node process rate: " + this.getTopLevelNodeProcessRate());
             debug.add("Extra time: " + TimingStatistics.A.pVal() + ", " + TimingStatistics.B.pVal() + ", " + TimingStatistics.C.pVal() + ", " + TimingStatistics.D.pVal());
             debug.add("Extra 2 time: " + TimingStatistics.E.pVal() + ", " + TimingStatistics.F.pVal() + ", " + TimingStatistics.G.pVal() + ", " + TimingStatistics.H.pVal() + ", " + TimingStatistics.I.pVal());
         }

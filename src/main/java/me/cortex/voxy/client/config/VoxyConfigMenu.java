@@ -123,7 +123,14 @@ public class VoxyConfigMenu implements ConfigEntryPoint {
                                                 }
                                             }
                                         }, "voxy:rendering", RENDER_RELOAD)
-                                        .setImpact(OptionImpact.MEDIUM)
+                                        .setImpact(OptionImpact.MEDIUM),
+                                new IntOption(
+                                        "voxy:render_pressure",
+                                        Component.translatable("voxy.config.general.renderPressure"),
+                                        ()->CFG.getRenderPressureLevel(), v->CFG.renderPressure=v,
+                                        new Range(0, 4, 1))
+                                        .setFormatter(v->Component.translatable("voxy.config.general.renderPressure." + v))
+                                        .setImpact(OptionImpact.HIGH)
                         ), new Group(
                                 new BoolOption(
                                     "voxy:eviromental_fog",

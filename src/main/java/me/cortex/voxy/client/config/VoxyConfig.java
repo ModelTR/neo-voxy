@@ -38,6 +38,10 @@ public class VoxyConfig {
     public int cloudDistance = 0;
     public boolean dontUseSodiumBuilderThreads = false;
 
+    // Controls how much render-thread time Voxy may spend baking/uploading model data each frame.
+    // 0 = maximum FPS / slowest LOD catch-up, 4 = fastest LOD catch-up / highest frame pressure.
+    public int renderPressure = 2;
+
     // LOD boundary buffer: controls the safety margin between vanilla chunks and LOD rendering.
     public int lodBoundaryBuffer = 1;
 
@@ -51,6 +55,13 @@ public class VoxyConfig {
     public String ssaoMode;
 
     public boolean useEnvironmentalFog = true;
+
+    public int getRenderPressureLevel() {
+        if (this.renderPressure < 0 || this.renderPressure > 4) {
+            this.renderPressure = 2;
+        }
+        return this.renderPressure;
+    }
 
     public SSAO.SSAOMode getSSAOMode() {
         if (this.ssaoMode == null) return SSAO.SSAOMode.AUTO;
