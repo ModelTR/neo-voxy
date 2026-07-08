@@ -3,7 +3,7 @@ name: Build Minecraft Mod (NeoForge)
 on:
   workflow_dispatch:
   push:
-    branches: [ main, lumisene-fluid-fix ]
+    branches: [ lumisene-fluid-fix ]
   pull_request:
     branches: [ main, master ]
 
