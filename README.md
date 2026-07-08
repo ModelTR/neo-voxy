@@ -4,9 +4,14 @@ An unofficial NeoForge 1.21.1 port of **Voxy**, the high-performance Level of De
 
 这是 **Voxy** 的非官方 NeoForge 1.21.1 移植版本,原地址https://github.com/JohnSnow14284/1.21.1-Neo-Voxy
 
-通过yarnobachmann的分支进行修改，但其基于的版本过于旧，性能表现很差，因此我结合原作者cortex的最新版（主要）和m3t4f1v3的分支版本进行修改，成功“套壳”到1.21.1Neoforge，且无需信雅互联和Fabricapi。
+通过yarnobachmann的分支进行修改，但其基于的版本过于旧，性能表现很差，
+
+因此我结合原作者cortex的最新版（主要）和m3t4f1v3的分支版本进行修改，
+
+成功“套壳”到1.21.1Neoforge，且无需信雅互联和Fabricapi。
 
 > All original Voxy credit belongs to [MCRcortex](https://github.com/MCRcortex), the creator of Voxy.
+
 > Voxy 原作者为 [MCRcortex](https://github.com/MCRcortex)，本项目仅为非官方 NeoForge 移植与兼容性维护版本。
 
 ---
@@ -19,23 +24,14 @@ An unofficial NeoForge 1.21.1 port of **Voxy**, the high-performance Level of De
 * Sodium-based rendering integration
   基于 Sodium 的渲染集成
 
-* Sodium 0.8.12 video settings UI integration
-  已集成到 Sodium 0.8.12 视频设置界面
+* Sodium 0.8.x video settings UI integration
+  已集成到 Sodium 0.8.x 视频设置界面
 
-* Client configuration through Sodium/Voxy settings
-  可通过 Sodium / Voxy 设置界面调整配置
+* 可通过 Sodium / Voxy 设置界面调整配置
 
-* FakeSight-style extended chunk request support, Thanks for song_5007
-  集成 FakeSight 风格的扩展区块请求功能，感谢大佬song_5007
+* 集成 FakeSight 风格的扩展区块请求功能，感谢大佬song_5007
   
 * 已初步兼容Domum Ornamentum，修复模拟殖民地Domum Ornamentum方块颜色消失问题
-
----
-## Pre / 计划实现
-
-*兼容voxy worldgen
-
-*兼容Continuity
 
 ---
 
@@ -46,8 +42,8 @@ An unofficial NeoForge 1.21.1 port of **Voxy**, the high-performance Level of De
 | ----------- | ---------------------------------------------- |
 | Minecraft   | 1.21.1                                         |
 | NeoForge    | 21.1.x                                         |
-| Java        | 21                                             |
-| Sodium      | mc1.21.1-0.8.12-alpha.4-neoforge or compatible |
+| Java        | 21/25                                             |
+| Sodium      | mc1.21.1-0.8.x                                 |
 
 
 This version no longer requires Forgified Fabric API as a mandatory dependency.
@@ -68,28 +64,22 @@ Recommended optional mods:
 
 ## Credits / 鸣谢
 
-* [MCRcortex](https://github.com/MCRcortex) - Original Voxy author
-  Voxy 原作者
-* [m3t4f1v3](https://github.com/m3t4f1v3) [yarnobachmann](https://github.com/yarnobachmann)- Forked Voxy author
-  Voxy 分支作者
-
-* [Original Voxy repository](https://github.com/MCRcortex/voxy)
-  原版 Voxy 仓库
+* [MCRcortex](https://github.com/MCRcortex) - Original Voxy author（Voxy 原作者）
   
-* NeoForge contributors
-  NeoForge 贡献者
-
-* Sodium contributors
-  Sodium 贡献者
-
-* Iris contributors
-  Iris 贡献者
+* [m3t4f1v3](https://github.com/m3t4f1v3) [yarnobachmann](https://github.com/yarnobachmann)- Forked Voxy author （Voxy 分支作者）
+ 
+* [Original Voxy repository](https://github.com/MCRcortex/voxy) （ 原版 Voxy 仓库 ）
   
-* FakeSight contributors
-  FakeSight 贡献者
-
-* The Minecraft modding community
-  Minecraft Mod 开发社区
+* NeoForge contributors（NeoForge 贡献者）
+  
+* Sodium contributors（Sodium 贡献者）
+  
+* Iris contributors（Iris 贡献者）
+    
+* FakeSight contributors（FakeSight 贡献者）
+  
+* The Minecraft modding community（Minecraft Mod 开发社区）
+  
 
 ---
 
